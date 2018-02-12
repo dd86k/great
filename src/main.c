@@ -28,11 +28,11 @@ void help() {
 
 void version() {
 	puts(
-		"great v0.0.0\n"
+		"great v0.0.0-0\n"
 		"MIT License: Copyright (c) 2018 dd86k\n"
 		"Project page: <https://github.com/dd86k/great>\n"
 		"\nSupported binaries:\n"
-		"- Executables:"
+		"- Executables:\n"
 		"  - PE32\n"
 		"  - PE32+\n"
 	);
