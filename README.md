@@ -1,6 +1,10 @@
 # great
 
-`great` is a simple executable/library analyzer.
+`great` is a simple executable/library analyzer. It's pretty incomplete as of right now.
+
+So far, the list of supported binaries are:
+- MZ
+- PE32/PE32+
 
 Example output for `great.exe`:
 ```

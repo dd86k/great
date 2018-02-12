@@ -1,6 +1,6 @@
 #define ERESWDS 0x10
 
-struct mz_hdr {
+struct mz_hdr { // header
 	unsigned short e_magic;        // Magic number
 	unsigned short e_cblp;         // Bytes on last page of file
 	unsigned short e_cp;           // Pages in file
@@ -17,6 +17,11 @@ struct mz_hdr {
 	unsigned short e_ovno;         // Overlay number
 	unsigned short e_res[ERESWDS]; // Reserved words
 	unsigned long int e_lfanew;    // File address of new exe header (usually at 3Ch)
+};
+
+struct mz_rlc { // Relocation entry
+	unsigned short off; // offset
+	unsigned short seg; // segment
 };
 
 void scan_mz(void);

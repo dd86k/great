@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "utils.h"
-
 #include "mz/mz.h"
 
 void scan() {
@@ -17,6 +16,8 @@ void scan() {
 		case 0x5A4D:
 			scan_mz();
 			break;
+		default:
+			puts("ERROR: Unknown executable/library format");
 		}
 	}
 }
