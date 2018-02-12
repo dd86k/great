@@ -6,6 +6,8 @@
 //#include "le.h"
 
 void scan_mz() {
+    struct mz_hdr h;
+
 	if (_ddseek(0x3c, SEEK_SET)) goto _MZ;
 
 	unsigned int p;
@@ -30,9 +32,8 @@ void scan_mz() {
     }
 
 _MZ:
-    struct mz_hdr h;
     _ddseek(0, SEEK_SET);
-    _ddread(&h, sizeof(h));
+    _ddread(&h, sizeof(struct mz_hdr));
 
     printf("MZ executable for MS-DOS");
     if (h.e_ovno)
@@ -52,7 +53,7 @@ _MZ:
         "cs      : %Xh\n"
         "lfarlc  : %Xh\n"
         "ovno    : %Xh\n"
-        "lfanew  : %lXh\n",
+        "lfanew  : %Xh\n",
         h.e_cblp, h.e_cp, h.e_crlc, h.e_cparh,
         h.e_minalloc, h.e_maxalloc, h.e_ss,
         h.e_sp, h.e_csum, h.e_ip, h.e_cs,

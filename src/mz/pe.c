@@ -428,6 +428,6 @@ void scan_pe() {
 	} else puts("\nNo sections");
 
 	if (peh.NumberOfSymbols) {
-
+		
 	} else puts("\nNo symbols");
 }

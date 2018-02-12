@@ -16,7 +16,7 @@ struct mz_hdr { // header
 	unsigned short e_lfarlc;       // File address of relocation table
 	unsigned short e_ovno;         // Overlay number
 	unsigned short e_res[ERESWDS]; // Reserved words
-	unsigned long int e_lfanew;    // File address of new exe header (usually at 3Ch)
+	unsigned int e_lfanew;    // File address of new exe header (usually at 3Ch)
 };
 
 struct mz_rlc { // Relocation entry

@@ -4,12 +4,13 @@
 #include <tchar.h>
 #include <wchar.h>
 #elif __linux__
-
+#include <glob.h>
 #else // POSIX
 
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "great.h"
 #include "utils.h"
 #include "settings.h"
@@ -95,20 +96,20 @@ MAIN {
 		help();
 		return 0;
 	}
-	for (int i = argc; --i >= 1;) {
+	while (--argc >= 1) {
 		if (_args) {
-			if (argv[i][1] == '-') { // long arguments
-				sb(argv[i]+2);
+			if (argv[argc][1] == '-') { // long arguments
+				sb(argv[argc]+2);
 				continue;
-			} else if (argv[i][0] == '-') { // short arguments
-				sa(argv[i]);
+			} else if (argv[argc][0] == '-') { // short arguments
+				sa(argv[argc]);
 				continue;
 			}
 		}
 #ifdef _WIN32
-		unsigned int a = GetFileAttributesW(argv[i]);
+		unsigned int a = GetFileAttributesW(argv[argc]);
 		if ((a & 0x10) == 0) { // NOT FILE_ATTRIBUTE_DIRECTORY
-			f = CreateFileW(argv[i],
+			f = CreateFileW(argv[argc],
 				GENERIC_READ, FILE_SHARE_READ, NULL,
 				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (!f) { //TODO: GetLastError (Windows)
@@ -116,19 +117,27 @@ MAIN {
 				return 2;
 			}
 			scan();
+		} else {
+			wprintf(L"%s: Entry does not exist or a directory\n", argv[argc]);
+			return 1;
+		}
 #elif __linux__
-
+		glob_t globbuf;
+		globbuf.gl_offs = 1;
+		glob(argv[argc], GLOB_DOOFFS, NULL, &globbuf);
+		if (globbuf.gl_pathc > 0) {
+			f = fopen(argv[argc], "rb"); // maybe use _s?
+			if (!f) {
+				puts("There was an issue opening the file.");
+				return 2;
+			}
+			scan();
+		}
+		globfree(&globbuf);
 #else // POSIX
 
 #endif
-		} else {
-#ifdef _WIN32
-			wprintf(L"%s: Entry does not exist or a directory\n", argv[i]);
-#else
-			printf("%s: Entry does not exist or a directory\n", argv[i]);
-#endif
-			return 1;
-		}
-	} // for
+	} // while
+
 	return 0;
 }
