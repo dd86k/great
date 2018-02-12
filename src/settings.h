@@ -1,0 +1,1 @@
+char ShowSymbols = 0;
