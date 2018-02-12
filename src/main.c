@@ -100,10 +100,8 @@ MAIN {
 		if (_args) {
 			if (argv[argc][1] == '-') { // long arguments
 				sb(argv[argc]+2);
-				continue;
 			} else if (argv[argc][0] == '-') { // short arguments
 				sa(argv[argc]);
-				continue;
 			}
 		}
 #ifdef _WIN32
