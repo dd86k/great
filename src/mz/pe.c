@@ -220,7 +220,7 @@ void scan_pe() {
 	}
 
 	if (peoh64.DllCharacteristics) {
-		printf("\nDLL Characteristics: ");
+		printf("\nDLL Characteristics: <%08Xh", peoh64.DllCharacteristics);
 		if (peoh64.DllCharacteristics & DLL_DYNAMIC_BASE)
 			printf(", DYNAMIC_BASE");
 		if (peoh64.DllCharacteristics & DLL_FORCE_INTEGRITY)
@@ -237,6 +237,7 @@ void scan_pe() {
 			printf(", WDM_DRIVER");
 		if (peoh64.DllCharacteristics & DLL_TERMINAL_SERVER_AWARE)
 			printf(", TERMINAL_SERVER_AWARE");
+		printf(">");
 	}
 
 	printf(
@@ -350,12 +351,13 @@ void scan_pe() {
 				"  Raw Data        : %08X  %d\n"
 				"  Relocations     : %08X  %d\n"
 				"  Line Numbers    : %08X  %d\n"
-				"  <",
+				"  <%08X",
 				++i, nbuf,
 				s.VirtualAddress, s.VirtualSize,
 				s.PointerToRawData, s.SizeOfRawData,
 				s.PointerToRelocations, s.NumberOfRelocations,
-				s.PointerToLinenumbers, s.NumberOfLinenumbers
+				s.PointerToLinenumbers, s.NumberOfLinenumbers,
+				s.Characteristics
 			);
 			if (s.Characteristics & SEC_NO_PAD)
 				printf(", NO_PAD");

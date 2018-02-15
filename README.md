@@ -6,6 +6,24 @@ So far, the list of supported binaries are:
 - MZ
 - PE32/PE32+
 
+Planned stuff:
+- PE32
+  - Symbols
+  - other stuff
+- ELF32/ELF64
+- NE
+- LE/LX
+
+Other planned stuff:
+- `-s` switch for Symbols
+- a complete manpage
+
+# Compiling
+
+You __must__ pack structs by 1-byte. `/Zp` on cl and `-fpack-struct=1` on gcc platforms.
+
+# Example
+
 Example output for `great.exe`:
 ```
 PE32+ Windows Console Executable for x86-64 machines, LARGE_ADDRESS_AWARE

@@ -1,1 +1,1 @@
-clang src/*.c src/mz/*.c -ogreat -O3 -fpack-struct=1
+clang src/*.c src/mz/*.c src\elf\*.c -ogreat -O3 -fpack-struct=1
