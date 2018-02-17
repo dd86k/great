@@ -6,7 +6,7 @@
  * Reads from the already opened f handle defined in ff.h.
  * buffer: Void pointer to buffer
  * size: size of buffer
- * Returns: Number of bytes read
+ * Returns: If sucessful
  */
 int _ddread(void *buffer, size_t size) {
 #ifdef _WIN32
