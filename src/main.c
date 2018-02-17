@@ -21,7 +21,7 @@ void help() {
 		"  Usage: great FILE [OPTIONS]\n"
 		"         great OPTIONS\n"
 		"\nOPTIONS\n"
-		"  -s    Show symbols\n"
+		//"  -s    Show symbols\n"
 		"\n  -h    Show help screen and exit\n"
 		"  -v    Show version screen and exit"
 	);
@@ -52,7 +52,7 @@ void sa(char *a) {
 		switch (*a) {
 		case 'h': help(); exit(0); return;
 		case 'v': version(); exit(0); return;
-		case 's': ShowSymbols = 1; break;
+		//case 's': s_symbols = 1; break;
 		case '-': _args = 0; break;
 		}
 	}

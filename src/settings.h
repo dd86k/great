@@ -1,1 +1,2 @@
-char ShowSymbols = 0;
+// settings
+//char s_symbols = 0;

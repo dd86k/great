@@ -65,37 +65,20 @@ int _strcmpw_l(wchar_t *s1, wchar_t *s2, size_t l) {
 }
 #endif
 
-// slice and copy string
-//void strslice(char *buffer, int length)
-
-/**
- * Slice an ISO9660-like string (space-padded)
- * buffer: Entry buffer
- * target: Target string
- * max   : Slice end (excluded)
- */
-void isoslice(char *buffer, char *target, size_t max) {
-	if (buffer[0] == ' ') return;
-	while (buffer[--max] == ' ' && max > 0);
-	if (max) {
-		memcpy(target, buffer, ++max);
-	}
-}
-
 /**
  * Format a decimal binary number and add its appropriate suffix.
  * e.g. 24554 will result 23K
  * l: Value
  */
 void _printfd(unsigned long long l) {
-	float f = l;
+	float a = l;
 	// Lazy code, sorry
-	if (f >= GB) {
-		printf("%.2fG", f / GB);
-	} else if (f >= MB) {
-		printf("%.2fM", f / MB);
-	} else if (f >= KB) {
-		printf("%.2fK", f / KB);
+	if (l >= GB) {
+		printf("%.2fG", a / GB);
+	} else if (l >= MB) {
+		printf("%.2fM", a / MB);
+	} else if (l >= KB) {
+		printf("%.2fK", a / KB);
 	} else
 		printf("%lldB", l);
 }
@@ -126,11 +109,4 @@ unsigned long long bswap64(unsigned long long s) {
 		(pi[1] & 0xff000000) >> 24;
 	pi[1] = a;
 	return s;
-}
-
-void print_array(unsigned char *a, size_t s) {
-	while (--s) {
-		printf(" %02X", *a); ++a;
-	}
-	puts("");
 }

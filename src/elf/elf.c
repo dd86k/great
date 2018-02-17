@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #include "../utils.h"
 #include "elf.h"
 
@@ -40,12 +39,12 @@ void scan_elf() {
 	switch (class) {
 	case 1: printf("32 "); break;
 	case 2: printf("64 "); break;
-	default: printf("? ");  break;
+	default: printf("? "); break;
 	}
 	switch (e_ident[EI_DATA]) {
 	case 1: printf("LE "); break;
 	case 2: printf("BE "); break;
-	default: printf("? ");  break;
+	default: printf("? "); break;
 	}
 	switch (e_ident[EI_OSABI]) {
 	case 0x00: printf("System V"); break;
@@ -93,7 +92,7 @@ void scan_elf() {
 	case EM_AARCH64: printf("ARM (64-bit)"); break;
 	default:         printf("unknown system"); break;
 	}
-	puts(" systems");
+	puts(" machines");
 
 	printf(
 		"type     : %Xh\n"
