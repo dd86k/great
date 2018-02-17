@@ -5,15 +5,15 @@
 
 /// Scan an ELF image
 void scan_elf() {
-	unsigned char e_ident[EI_NIDENT-4]; // Exclude magic
-	_ddread(e_ident, sizeof(EI_NIDENT-4));
-	unsigned char class = e_ident[EI_CLASS-4];
+	unsigned char e_ident[EI_NIDENT]; // Exclude magic
+	_ddread(e_ident, sizeof(EI_NIDENT));
+	unsigned char class = e_ident[EI_CLASS];
 
 	struct Elf64_Ehdr h;
 	switch (class) {
 	case 1:
 		struct Elf32_Ehdr e32;
-		_ddread(&e32, sizeof(E_H32_SIZE));
+		_ddread(&e32, sizeof(struct Elf32_Ehdr));
 		h.e_type = e32.e_type;
 		h.e_machine = e32.e_machine;
 		h.e_version = e32.e_version;
@@ -29,7 +29,7 @@ void scan_elf() {
 		h.e_shstrndx = e32.e_shstrndx;
 		break;
 	case 2:
-		_ddread(&h, sizeof(E_H64_SIZE));
+		_ddread(&h, sizeof(struct Elf64_Ehdr));
 		break;
 	default:
 		puts("ERROR: EI_CLASS?");
@@ -42,12 +42,12 @@ void scan_elf() {
 	case 2: printf("64 "); break;
 	default: printf("? ");  break;
 	}
-	switch (e_ident[EI_DATA-4]) {
+	switch (e_ident[EI_DATA]) {
 	case 1: printf("LE "); break;
 	case 2: printf("BE "); break;
 	default: printf("? ");  break;
 	}
-	switch (e_ident[EI_OSABI-4]) {
+	switch (e_ident[EI_OSABI]) {
 	case 0x00: printf("System V"); break;
 	case 0x01: printf("HP-UX"); break;
 	case 0x02: printf("NetBSD"); break;
@@ -66,7 +66,7 @@ void scan_elf() {
 	default:   printf("Unknown DECL"); break;
 	}
 	switch (h.e_type) {
-	case ET_NONE:   printf(" (No file type)"); break;
+	case ET_NONE:   printf(" (No filetype)"); break;
 	case ET_REL:    printf(" Relocatable"); break;
 	case ET_EXEC:   printf(" Executable"); break;
 	case ET_DYN:    printf(" Shared object"); break;
@@ -91,9 +91,9 @@ void scan_elf() {
 	case EM_ARM:     printf("ARM"); break;
 	case EM_SUPERH:  printf("SuperH"); break;
 	case EM_AARCH64: printf("ARM (64-bit)"); break;
-	default:         printf("Unknown Machine"); break;
+	default:         printf("unknown system"); break;
 	}
-	puts(" machines");
+	puts(" systems");
 
 	printf(
 		"type     : %Xh\n"
@@ -117,7 +117,7 @@ void scan_elf() {
 	);
 
 	if (h.e_shnum) {
-		_ddseek(h.e_shoff, SEEK_CUR);
+		_ddseek(h.e_shoff, SEEK_SET);
 
 		int i = 0;
 		struct Elf64_Shdr s;

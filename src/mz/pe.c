@@ -220,7 +220,7 @@ void scan_pe() {
 	}
 
 	if (peoh64.DllCharacteristics) {
-		printf("\nDLL Characteristics: <%08Xh", peoh64.DllCharacteristics);
+		printf("\nDLL Characteristics:\n  <%08Xh", peoh64.DllCharacteristics);
 		if (peoh64.DllCharacteristics & DLL_DYNAMIC_BASE)
 			printf(", DYNAMIC_BASE");
 		if (peoh64.DllCharacteristics & DLL_FORCE_INTEGRITY)
@@ -241,35 +241,35 @@ void scan_pe() {
 	}
 
 	printf(
-		"\nTimestamp               : %Xh\n"
-		"Number of sections      : %d\n"
-		"Number of symbols       : %d\n"
-		"Symbol Table Pointer    : %Xh\n"
-		"Optional Header Size    : %d\n"
+		"\nTimestamp              : %Xh\n"
+		"Number of sections     : %d\n"
+		"Number of symbols      : %d\n"
+		"Symbol Table Pointer   : %Xh\n"
+		"Optional Header Size   : %d\n"
 		// Optional
-		"Linker Version          : %d.%d\n"
-		"Size of Code            : %Xh\n"
-		"Initialized Data Size   : %Xh\n"
-		"Uninitialized Data Size : %Xh\n"
-		"Entry Point Address     : %Xh\n"
-		"Base of Code            : %Xh\n"
-		"Base of Data            : %Xh\n"
-		"Base of Image           : %llXh\n"
-		"Section Alignment       : %d\n"
-		"File Alignment          : %d\n"
-		"OS Version              : %d.%d\n"
-		"Image Version           : %d.%d\n"
-		"Subsystem Version       : %d.%d\n"
-		"Win32 Version           : %Xh\n"
-		"Size of Image           : %Xh\n"
-		"Size of Headers         : %Xh\n"
-		"Checksum                : %Xh\n"
-		"Stack Reserve Size      : %llXh\n"
-		"Stack Commit Size       : %llXh\n"
-		"Heap Reserve Size       : %llXh\n"
-		"Heap Commit Size        : %llXh\n"
-		"Loader Flags (Obsolete) : %Xh\n"
-		"Number of RVA and Sizes : %d\n",
+		"Linker Version         : %d.%d\n"
+		"Size of Code           : %Xh\n"
+		"Initialized Data Size  : %Xh\n"
+		"Uninitialized Data Size: %Xh\n"
+		"Entry Point Address    : %Xh\n"
+		"Base of Code           : %Xh\n"
+		"Base of Data           : %Xh\n"
+		"Base of Image          : %llXh\n"
+		"Section Alignment      : %d\n"
+		"File Alignment         : %d\n"
+		"OS Version             : %d.%d\n"
+		"Image Version          : %d.%d\n"
+		"Subsystem Version      : %d.%d\n"
+		"Win32 Version          : %Xh\n"
+		"Size of Image          : %Xh\n"
+		"Size of Headers        : %Xh\n"
+		"Checksum               : %Xh\n"
+		"Stack Reserve Size     : %llXh\n"
+		"Stack Commit Size      : %llXh\n"
+		"Heap Reserve Size      : %llXh\n"
+		"Heap Commit Size       : %llXh\n"
+		"Loader Flags (Obsolete): %Xh\n"
+		"Number of RVA and Sizes: %d\n",
 		peh.TimeDateStamp,
 		peh.NumberOfSections,
 		peh.NumberOfSymbols,
@@ -382,33 +382,33 @@ void scan_pe() {
 			if (s.Characteristics & SEC_MEM_PRELOAD)
 				printf(", MEM_PRELOAD");
 			if (s.Characteristics & ALIGN_1BYTES)
-				printf(", ALIGNN_1BYTES");
+				printf(", ALIGN_1BYTES");
 			if (s.Characteristics & ALIGN_2BYTES)
-				printf(", ALIGNN_2BYTES");
+				printf(", ALIGN_2BYTES");
 			if (s.Characteristics & ALIGN_4BYTES)
-				printf(", ALIGNN_4BYTES");
+				printf(", ALIGN_4BYTES");
 			if (s.Characteristics & ALIGN_8BYTES)
-				printf(", ALIGNN_8BYTES");
+				printf(", ALIGN_8BYTES");
 			if (s.Characteristics & ALIGN_16BYTES)
-				printf(", ALIGNN_16BYTES");
+				printf(", ALIGN_16BYTES");
 			if (s.Characteristics & ALIGN_32BYTES)
-				printf(", ALIGNN_32BYTES");
+				printf(", ALIGN_32BYTES");
 			if (s.Characteristics & ALIGN_64BYTES)
-				printf(", ALIGNN_64BYTES");
+				printf(", ALIGN_64BYTES");
 			if (s.Characteristics & ALIGN_128BYTES)
-				printf(", ALIGNN_128BYTES");
+				printf(", ALIGN_128BYTES");
 			if (s.Characteristics & ALIGN_256BYTES)
-				printf(", ALIGNN_256BYTES");
+				printf(", ALIGN_256BYTES");
 			if (s.Characteristics & ALIGN_512BYTES)
-				printf(", ALIGNN_512BYTES");
+				printf(", ALIGN_512BYTES");
 			if (s.Characteristics & ALIGN_1024BYTES)
-				printf(", ALIGNN_1024BYTES");
+				printf(", ALIGN_1024BYTES");
 			if (s.Characteristics & ALIGN_2048BYTES)
-				printf(", ALIGNN_2048BYTES");
+				printf(", ALIGN_2048BYTES");
 			if (s.Characteristics & ALIGN_4096BYTES)
-				printf(", ALIGNN_4096BYTES");
+				printf(", ALIGN_4096BYTES");
 			if (s.Characteristics & ALIGN_8192BYTES)
-				printf(", ALIGNN_8192BYTES");
+				printf(", ALIGN_8192BYTES");
 			if (s.Characteristics & SEC_LNK_NRELOC_OVFL)
 				printf(", LNK_NRELOC_OVFL");
 			if (s.Characteristics & SEC_MEM_DISCARDABLE)

@@ -1,8 +1,12 @@
-#define EI_NIDENT  16
+// http://www.sco.com/developers/gabi/latest/contents.html
 
-#define EI_CLASS   4
-#define EI_DATA    5
-#define EI_OSABI   7
+// -4 because we already scanned for magic (4 bytes) beforehand
+
+#define EI_NIDENT  12 // 16-4
+
+#define EI_CLASS   0 // 4-4
+#define EI_DATA    1 // 5-4
+#define EI_OSABI   3 // 7-4
 
 #define EV_NONE    0
 #define EV_CURRENT 1
@@ -12,10 +16,9 @@
 #define ET_EXEC    2      // Executable file
 #define ET_DYN     3      // Shared object file
 #define ET_CORE    4      // Core file
-#define ET_LOPROC  0xFF00 // Processor-specific
-#define ET_HIPROC  0xFFFF // Processor-specific
+#define ET_LOPROC  0xff00 // Processor-specific
+#define ET_HIPROC  0xffff // Processor-specific
 
-// FatELF also uses this
 #define EM_NONE        0  // No machine
 #define EM_M32         1  // AT&T WE 32100
 #define EM_SPARC       2  // SPARC
@@ -25,7 +28,6 @@
 #define EM_860         7  // Intel 80860
 #define EM_MIPS        8  // MIPS RS3000
 #define EM_MIPS_RS4_BE 10 // MIPS RS4000 Big-Endian
-// Rest is from http://wiki.osdev.org/ELF
 #define EM_POWERPC 0x14 // PowerPC
 #define EM_ARM     0x28 // ARM
 #define EM_SUPERH  0xA2 // SuperH
@@ -34,6 +36,7 @@
 #define EM_AARCH64 0xB7 // 64-bit ARM
 
 struct Elf32_Ehdr {
+	//unsigned char e_ident[EI_NIDENT];
 	unsigned short e_type;
 	unsigned short e_machine;
 	unsigned int e_version;
@@ -50,6 +53,7 @@ struct Elf32_Ehdr {
 };
 
 struct Elf64_Ehdr {
+	//unsigned char e_ident[EI_NIDENT];
 	unsigned short e_type;
 	unsigned short e_machine;
 	unsigned int e_version;
@@ -81,18 +85,15 @@ struct Elf32_Shdr { // Section
 struct Elf64_Shdr { // Section
 	unsigned int sh_name;
 	unsigned int sh_type;
-	unsigned int sh_flags;
+	unsigned long long sh_flags;
 	unsigned long long sh_addr;
-	unsigned int sh_offset;
-	unsigned int sh_size;
+	unsigned long long sh_offset;
+	unsigned long long sh_size;
 	unsigned int sh_link;
 	unsigned int sh_info;
-	unsigned int sh_addralign;
-	unsigned int sh_entsize;
+	unsigned long long sh_addralign;
+	unsigned long long sh_entsize;
 };
-
-#define E_H32_SIZE sizeof(struct Elf32_Ehdr)-4
-#define E_H64_SIZE sizeof(struct Elf64_Ehdr)-4
 
 #define SHT_NULL 0
 #define SHT_PROGBITS 1
