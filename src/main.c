@@ -9,6 +9,8 @@
 
 #endif
 
+#define VERSION
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "great.h"
@@ -29,7 +31,7 @@ void help() {
 
 void version() {
 	puts(
-		"great v0.0.0-0\n"
+		"great v" VERSION "\n"
 		"MIT License: Copyright (c) 2018 dd86k\n"
 		"Project page: <https://github.com/dd86k/great>\n"
 		"\nSupported binaries:\n"
