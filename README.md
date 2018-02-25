@@ -7,7 +7,7 @@
 
 ## Support table
 
-What's _great_so far?
+What's _great_ so far?
 
 | | Header | Relocations | Sections | Symbols |
 |---|---|---|---|---|
