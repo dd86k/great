@@ -9,7 +9,7 @@
 
 #endif
 
-#define VERSION "0.0.0-0"
+#define VERSION "0.0.0"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,18 +27,27 @@ void help() {
 		"\n  -h    Show help screen and exit\n"
 		"  -v    Show version screen and exit"
 	);
+	exit(0);
 }
 
 void version() {
 	puts(
-		"great v" VERSION "\n"
+		"great v" VERSION
+#ifdef TIMESTAMP
+		" (" TIMESTAMP ")"
+#endif
+		"\n"
 		"MIT License: Copyright (c) 2018 dd86k\n"
 		"Project page: <https://github.com/dd86k/great>\n"
-		"\nSupported binaries:\n"
-		"- Executables:\n"
-		"  - PE32\n"
-		"  - PE32+\n"
+		"\nSupport\n"
+		"MZ\n"
+		"  header, relocations"
+		"PE32\n"
+		"  headers, sections\n"
+		"PE32+\n"
+		"  headers, sections\n"
 	);
+	exit(0);
 }
 
 char _args = 1;
@@ -52,8 +61,8 @@ void sa(char *a) {
 #endif
 	while (*++a != 0) {
 		switch (*a) {
-		case 'h': help(); exit(0); return;
-		case 'v': version(); exit(0); return;
+		case 'h': help(); return;
+		case 'v': version(); return;
 		//case 's': s_symbols = 1; break;
 		case '-': _args = 0; break;
 		}
@@ -65,31 +74,19 @@ void sa(char *a) {
 #ifdef _WIN32
 #define O_HELP L"help"
 #define O_VERSION L"version"
+void sb(wchar_t *a) {
+	if (_strcmpw_l(a, O_HELP, sizeof(O_HELP)/2) == 0)
+		help();
+	if (_strcmpw_l(a, O_VERSION, sizeof(O_VERSION)/2) == 0)
+		version();
 #else
 #define O_HELP "help"
 #define O_VERSION "version"
-#endif
-
-#ifdef _WIN32
-void sb(wchar_t *a) {
-	if (_strcmpw_l(a, O_HELP, sizeof(O_HELP)/2) == 0) {
-		help();
-		exit(0);
-	}
-	if (_strcmpw_l(a, O_VERSION, sizeof(O_VERSION)/2) == 0) {
-		version();
-		exit(0);
-	}
-#else
 void sb(char *a) {
-	if (_strcmp_l(a, O_HELP, sizeof(O_HELP)) == 0) {
+	if (_strcmp_l(a, O_HELP, sizeof(O_HELP)) == 0)
 		help();
-		exit(0);
-	}
-	if (_strcmp_l(a, O_VERSION, sizeof(O_VERSION)) == 0) {
+	if (_strcmp_l(a, O_VERSION, sizeof(O_VERSION)) == 0)
 		version();
-		exit(0);
-	}
 #endif
 }
 
@@ -101,9 +98,9 @@ MAIN {
 	while (--argc >= 1) {
 		if (_args) {
 			if (argv[argc][1] == '-') { // long arguments
-				sb(argv[argc]+2);
+				sb(argv[argc]+2); continue;
 			} else if (argv[argc][0] == '-') { // short arguments
-				sa(argv[argc]);
+				sa(argv[argc]); continue;
 			}
 		}
 #ifdef _WIN32
@@ -113,29 +110,16 @@ MAIN {
 				GENERIC_READ, FILE_SHARE_READ, NULL,
 				OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (!f) { //TODO: GetLastError (Windows)
-				puts("There was an issue opening the file.");
+				fprintf(stderr, "E: Cannot open file\n");
 				return 2;
 			}
 			scan();
 		} else {
-			wprintf(L"%s: Entry does not exist or a directory\n", argv[argc]);
+			_wprintf_p(L"E: Invalid entry: %s\n", argv[argc]);
 			return 1;
 		}
-#elif __linux__
-		glob_t globbuf;
-		globbuf.gl_offs = 1;
-		glob(argv[argc], GLOB_DOOFFS, NULL, &globbuf);
-		if (globbuf.gl_pathc > 0) {
-			f = fopen(argv[argc], "rb"); // maybe use _s?
-			if (!f) {
-				puts("There was an issue opening the file.");
-				return 2;
-			}
-			scan();
-		}
-		globfree(&globbuf);
 #else // POSIX
-
+#error Missing CLI (POSIX)
 #endif
 	} // while
 

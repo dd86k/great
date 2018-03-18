@@ -10,11 +10,11 @@ void scan_mz() {
 
 	if (_ddseek(0x3c, SEEK_SET)) goto _MZ;
 
-	unsigned int p;
+	uint32_t p;
 	_ddread(&p, 4);
 
     if (p) {
-        unsigned short sig;
+        uint16_t sig;
         if (_ddseek(p, SEEK_SET)) goto _MZ;
         _ddread(&sig, 2);
         switch (sig) {
@@ -35,11 +35,8 @@ _MZ:
     _ddseek(0, SEEK_SET);
     _ddread(&h, sizeof(struct mz_hdr));
 
-    printf("MZ executable for MS-DOS");
-    if (h.e_ovno)
-        printf(" (Overlay: %d)", h.e_ovno);
-
     printf(
+        "MZ executable for MS-DOS (Overlay: %d)\n"
         "\ncblp    : %Xh\n"
         "cp      : %Xh\n"
         "crlc    : %Xh\n"
@@ -54,6 +51,7 @@ _MZ:
         "lfarlc  : %Xh\n"
         "ovno    : %Xh\n"
         "lfanew  : %Xh\n",
+        h.e_ovno,
         h.e_cblp, h.e_cp, h.e_crlc, h.e_cparh,
         h.e_minalloc, h.e_maxalloc, h.e_ss,
         h.e_sp, h.e_csum, h.e_ip, h.e_cs,
@@ -61,7 +59,7 @@ _MZ:
     );
 
     if (h.e_crlc) {
-        short i = 0;
+        unsigned short i = 0;
         struct mz_rlc r;
         _ddseek(h.e_lfarlc, SEEK_SET);
         puts("\nRelocations\n");
@@ -71,6 +69,6 @@ _MZ:
                 "%2d  Segment:%04X  Offset:%04X\n",
                 ++i, r.seg, r.off
             );
-        } while (--h.e_crlc);
+        } while (--h.e_crlc && i < 0xFFFF);
     } else puts("\nNo relocations");
 }

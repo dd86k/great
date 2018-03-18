@@ -146,7 +146,6 @@ void scan_elf() {
 				++i
 			);
 			switch (s.sh_type) {
-			default: printf("SHT_NULL"); break;
 			case SHT_PROGBITS: printf("SHT_PROGBITS"); break;
 			case SHT_SYMTAB: printf("SHT_SYMTAB"); break;
 			case SHT_STRTAB: printf("SHT_STRTAB"); break;
@@ -162,6 +161,7 @@ void scan_elf() {
 			case SHT_HIPROC: printf("SHT_HIPROC"); break;
 			case SHT_LOUSER: printf("SHT_LOUSER"); break;
 			case SHT_HIUSER: printf("SHT_HIUSER"); break;
+			default: printf("SHT_NULL"); break;
 			}
 			if (s.sh_flags & SHF_WRITE)
 				printf(", SHF_WRITE");
