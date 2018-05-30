@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include "../utils.h"
+#include "../settings.h"
 #include "pe.h"
 
 //peh.Characteristics & EXECUTABLE_IMAGE for OBJ/EXE diff?
 
 void scan_pe() {
 	/*
-	 * Stick to using the peoh64 structure, the 32-bit variant is translated
+	 * Stick to the peoh64 structure, the 32-bit variant is translated
 	 * to the 64-bit one (PE32->PE32+) for simplicity. The BaseOfData field
 	 * is translated under this function.
 	 */
@@ -16,8 +17,9 @@ void scan_pe() {
 	struct PE_OPTIONAL_HEADER peoh;
 	struct PE_OPTIONAL_HEADER64 peoh64;
 	struct IMAGE_DATA_DIRECTORY dirs;
-	unsigned int _BaseOfData;
-	unsigned short magic;
+
+	uint32_t _BaseOfData;
+	uint16_t magic;
 
 	_ddread(&peh, sizeof(peh));
 
@@ -237,10 +239,11 @@ void scan_pe() {
 			printf(", WDM_DRIVER");
 		if (peoh64.DllCharacteristics & DLL_TERMINAL_SERVER_AWARE)
 			printf(", TERMINAL_SERVER_AWARE");
-		printf(">");
+		puts(">");
 	}
 
-	printf(
+	if (setting_header) printf(
+		"\nHeader data\n"
 		"\nTimestamp              : %Xh\n"
 		"Number of sections     : %d\n"
 		"Number of symbols      : %d\n"
@@ -301,24 +304,24 @@ void scan_pe() {
 		peoh64.NumberOfRvaAndSizes
 	);
 
-	printf( // Directories
+	if (setting_directories) printf( // Directories
 		"\nDirectories\n\n"
-		"Export Table          : %08X  %d\n"
-		"Import Table          : %08X  %d\n"
-		"Resource Table        : %08X  %d\n"
-		"Exception Table       : %08X  %d\n"
-		"Certificate Table     : %08X  %d\n"
-		"Base Relocation Table : %08X  %d\n"
-		"Debug Directory       : %08X  %d\n"
-		"Architecture Data     : %08X  %d\n"
-		"Global Pointer        : %08X  %d\n"
-		"TLS Table             : %08X  %d\n"
-		"Load Configuration    : %08X  %d\n"
-		"Bound Import          : %08X  %d\n"
-		"Import Address        : %08X  %d\n"
-		"Delay Import          : %08X  %d\n"
-		"CLR Header            : %08X  %d\n"
-		"Reserved              : %08X  %d\n",
+		"Export Table          : %8Xh  %d B\n"
+		"Import Table          : %8Xh  %d B\n"
+		"Resource Table        : %8Xh  %d B\n"
+		"Exception Table       : %8Xh  %d B\n"
+		"Certificate Table     : %8Xh  %d B\n"
+		"Base Relocation Table : %8Xh  %d B\n"
+		"Debug Directory       : %8Xh  %d B\n"
+		"Architecture Data     : %8Xh  %d B\n"
+		"Global Pointer        : %8Xh  %d B\n"
+		"TLS Table             : %8Xh  %d B\n"
+		"Load Configuration    : %8Xh  %d B\n"
+		"Bound Import          : %8Xh  %d B\n"
+		"Import Address        : %8Xh  %d B\n"
+		"Delay Import          : %8Xh  %d B\n"
+		"CLR Header            : %8Xh  %d B\n"
+		"Reserved              : %8Xh  %d B\n",
 		dirs.ExportTableVA, dirs.ExportTableSize,
 		dirs.ImportTableVA, dirs.ImportTableSize,
 		dirs.ResourceTableVA, dirs.ResourceTableSize,
@@ -337,99 +340,116 @@ void scan_pe() {
 		dirs.ReservedVA, dirs.ReservedSize
 	);
 
-	if (peh.NumberOfSections) {
-		int i = 0;
-		puts("\nSections");
-		struct PE32_SECTION s;
-		char nbuf[9] = { 0 };
-		do {
-			_ddread(&s, sizeof(struct PE32_SECTION));
-			memcpy(nbuf, s.Name, 8);
-			printf(
-				"\n%d  %s\n"
-				"  Virtual Address : %08X  %d\n"
-				"  Raw Data        : %08X  %d\n"
-				"  Relocations     : %08X  %d\n"
-				"  Line Numbers    : %08X  %d\n"
-				"  <%08X",
-				++i, nbuf,
-				s.VirtualAddress, s.VirtualSize,
-				s.PointerToRawData, s.SizeOfRawData,
-				s.PointerToRelocations, s.NumberOfRelocations,
-				s.PointerToLinenumbers, s.NumberOfLinenumbers,
-				s.Characteristics
-			);
-			if (s.Characteristics & SEC_NO_PAD)
-				printf(", NO_PAD");
-			if (s.Characteristics & SEC_CNT_CODE)
-				printf(", CNT_CODE");
-			if (s.Characteristics & SEC_INITIALIZED_DATA)
-				printf(", INITIALIZED_DATA");
-			if (s.Characteristics & SEC_UNINITIALIZED_DATA)
-				printf(", UNINITIALIZED_DATA");
-			if (s.Characteristics & SEC_LNK_INFO)
-				printf(", LNK_INFO");
-			if (s.Characteristics & SEC_LNK_REMOVE)
-				printf(", LNK_REMOVE");
-			if (s.Characteristics & SEC_LNK_COMDAT)
-				printf(", LNK_COMDAT");
-			if (s.Characteristics & SEC_GPREL)
-				printf(", GPREL");
-			if (s.Characteristics & SEC_MEM_PURGEABLE)
-				printf(", MEM_PURGEABLE");
-			if (s.Characteristics & SEC_MEM_LOCKED)
-				printf(", MEM_LOCKED");
-			if (s.Characteristics & SEC_MEM_PRELOAD)
-				printf(", MEM_PRELOAD");
-			if (s.Characteristics & ALIGN_1BYTES)
-				printf(", ALIGN_1BYTES");
-			if (s.Characteristics & ALIGN_2BYTES)
-				printf(", ALIGN_2BYTES");
-			if (s.Characteristics & ALIGN_4BYTES)
-				printf(", ALIGN_4BYTES");
-			if (s.Characteristics & ALIGN_8BYTES)
-				printf(", ALIGN_8BYTES");
-			if (s.Characteristics & ALIGN_16BYTES)
-				printf(", ALIGN_16BYTES");
-			if (s.Characteristics & ALIGN_32BYTES)
-				printf(", ALIGN_32BYTES");
-			if (s.Characteristics & ALIGN_64BYTES)
-				printf(", ALIGN_64BYTES");
-			if (s.Characteristics & ALIGN_128BYTES)
-				printf(", ALIGN_128BYTES");
-			if (s.Characteristics & ALIGN_256BYTES)
-				printf(", ALIGN_256BYTES");
-			if (s.Characteristics & ALIGN_512BYTES)
-				printf(", ALIGN_512BYTES");
-			if (s.Characteristics & ALIGN_1024BYTES)
-				printf(", ALIGN_1024BYTES");
-			if (s.Characteristics & ALIGN_2048BYTES)
-				printf(", ALIGN_2048BYTES");
-			if (s.Characteristics & ALIGN_4096BYTES)
-				printf(", ALIGN_4096BYTES");
-			if (s.Characteristics & ALIGN_8192BYTES)
-				printf(", ALIGN_8192BYTES");
-			if (s.Characteristics & SEC_LNK_NRELOC_OVFL)
-				printf(", LNK_NRELOC_OVFL");
-			if (s.Characteristics & SEC_MEM_DISCARDABLE)
-				printf(", MEM_DISCARDABLE");
-			if (s.Characteristics & SEC_MEM_NOT_CACHED)
-				printf(", MEM_NOT_CACHED");
-			if (s.Characteristics & SEC_MEM_NOT_PAGED)
-				printf(", MEM_NOT_PAGED");
-			if (s.Characteristics & SEC_MEM_SHARED)
-				printf(", MEM_SHARED");
-			if (s.Characteristics & SEC_MEM_EXECUTE)
-				printf(", MEM_EXECUTE");
-			if (s.Characteristics & SEC_MEM_READ)
-				printf(", MEM_READ");
-			if (s.Characteristics & SEC_MEM_WRITE)
-				printf(", MEM_WRITE");
-			puts(">");
-		} while (--peh.NumberOfSections);
-	} else puts("\nNo sections");
+	if (setting_sections) {
+		if (peh.NumberOfSections) {
+			int i = 0;
+			puts("\nSections");
+			struct PE32_SECTION s;
+			char nbuf[9] = { 0 };
+			do {
+				_ddread(&s, sizeof(struct PE32_SECTION));
+				memcpy(nbuf, s.Name, 8);
+				printf(
+					"\n%d  %s\n"
+					"  Virtual Address : %8Xh  %d B\n"
+					"  Raw Data        : %8Xh  %d B\n"
+					"  Relocations     : %8Xh  %d B\n"
+					"  Line Numbers    : %8Xh  %d B\n"
+					"  <%08X",
+					++i, nbuf,
+					s.VirtualAddress, s.VirtualSize,
+					s.PointerToRawData, s.SizeOfRawData,
+					s.PointerToRelocations, s.NumberOfRelocations,
+					s.PointerToLinenumbers, s.NumberOfLinenumbers,
+					s.Characteristics
+				);
+				if (s.Characteristics & SEC_NO_PAD)
+					printf(", NO_PAD");
+				if (s.Characteristics & SEC_CNT_CODE)
+					printf(", CNT_CODE");
+				if (s.Characteristics & SEC_INITIALIZED_DATA)
+					printf(", INITIALIZED_DATA");
+				if (s.Characteristics & SEC_UNINITIALIZED_DATA)
+					printf(", UNINITIALIZED_DATA");
+				if (s.Characteristics & SEC_LNK_INFO)
+					printf(", LNK_INFO");
+				if (s.Characteristics & SEC_LNK_REMOVE)
+					printf(", LNK_REMOVE");
+				if (s.Characteristics & SEC_LNK_COMDAT)
+					printf(", LNK_COMDAT");
+				if (s.Characteristics & SEC_GPREL)
+					printf(", GPREL");
+				if (s.Characteristics & SEC_MEM_PURGEABLE)
+					printf(", MEM_PURGEABLE");
+				if (s.Characteristics & SEC_MEM_LOCKED)
+					printf(", MEM_LOCKED");
+				if (s.Characteristics & SEC_MEM_PRELOAD)
+					printf(", MEM_PRELOAD");
+				if (s.Characteristics & ALIGN_1BYTES)
+					printf(", ALIGN_1BYTES");
+				if (s.Characteristics & ALIGN_2BYTES)
+					printf(", ALIGN_2BYTES");
+				if (s.Characteristics & ALIGN_4BYTES)
+					printf(", ALIGN_4BYTES");
+				if (s.Characteristics & ALIGN_8BYTES)
+					printf(", ALIGN_8BYTES");
+				if (s.Characteristics & ALIGN_16BYTES)
+					printf(", ALIGN_16BYTES");
+				if (s.Characteristics & ALIGN_32BYTES)
+					printf(", ALIGN_32BYTES");
+				if (s.Characteristics & ALIGN_64BYTES)
+					printf(", ALIGN_64BYTES");
+				if (s.Characteristics & ALIGN_128BYTES)
+					printf(", ALIGN_128BYTES");
+				if (s.Characteristics & ALIGN_256BYTES)
+					printf(", ALIGN_256BYTES");
+				if (s.Characteristics & ALIGN_512BYTES)
+					printf(", ALIGN_512BYTES");
+				if (s.Characteristics & ALIGN_1024BYTES)
+					printf(", ALIGN_1024BYTES");
+				if (s.Characteristics & ALIGN_2048BYTES)
+					printf(", ALIGN_2048BYTES");
+				if (s.Characteristics & ALIGN_4096BYTES)
+					printf(", ALIGN_4096BYTES");
+				if (s.Characteristics & ALIGN_8192BYTES)
+					printf(", ALIGN_8192BYTES");
+				if (s.Characteristics & SEC_LNK_NRELOC_OVFL)
+					printf(", LNK_NRELOC_OVFL");
+				if (s.Characteristics & SEC_MEM_DISCARDABLE)
+					printf(", MEM_DISCARDABLE");
+				if (s.Characteristics & SEC_MEM_NOT_CACHED)
+					printf(", MEM_NOT_CACHED");
+				if (s.Characteristics & SEC_MEM_NOT_PAGED)
+					printf(", MEM_NOT_PAGED");
+				if (s.Characteristics & SEC_MEM_SHARED)
+					printf(", MEM_SHARED");
+				if (s.Characteristics & SEC_MEM_EXECUTE)
+					printf(", MEM_EXECUTE");
+				if (s.Characteristics & SEC_MEM_READ)
+					printf(", MEM_READ");
+				if (s.Characteristics & SEC_MEM_WRITE)
+					printf(", MEM_WRITE");
+				puts(">");
+			} while (--peh.NumberOfSections);
+		} else puts("\nNo sections");
+	}
 
-	if (peh.NumberOfSymbols) {
-		
-	} else puts("\nNo symbols");
+	if (setting_symbols) {
+		if (peh.NumberOfSymbols && peh.PointerToSymbolTable) {
+			struct PE32_SYMBOL symbol;
+			int i = 0;
+			_ddseek(peh.PointerToSymbolTable, SEEK_SET);
+			do {
+				*(uint32_t*)symbol.Name = 0; *((uint32_t*)symbol.Name + 1) = 0;
+				_ddread(&symbol, sizeof(struct PE32_SYMBOL));
+				printf(
+					"\n%-4d (%d)  %s\n"
+					"  <%08X>  Type:%d  Class:%d  Aux:%d",
+					i, symbol.SectionNumber, symbol.Name,
+					symbol.Value, symbol.Type, symbol.StorageClass, symbol.NumberOfAuxSymbols
+				);
+				++i;
+			} while (--peh.NumberOfSymbols);
+		} else puts("\nNo symbols");
+	}
 }

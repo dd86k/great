@@ -9,7 +9,7 @@
 
 #endif
 
-#define VERSION "0.0.0"
+#define VERSION "0.0.0" // MAJOR.MINOR.REVISION
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,13 +21,16 @@ void help() {
 	puts(
 		"Print exec/lib information\n"
 		"  Usage: great FILE [OPTIONS]\n"
-		"         great OPTIONS\n"
-		"\nOPTIONS\n"
-		//"  -s    Show symbols\n"
-		"\n  -h    Show help screen and exit\n"
-		"  -v    Show version screen and exit"
+		"         great OPTIONS\n\n"
+		"  -H    Show detailed header info\n"
+		"  -R    Show relocations\n"
+		"  -S    Show sections\n"
+		"  -Y    Show symbols\n"
+		"  -D    (PE32) Show directories\n"
+		"  -A    Show all\n"
+		"  -h, --help      Show help screen and exit\n"
+		"  -v, --version   Show version screen and exit"
 	);
-	exit(0);
 }
 
 void version() {
@@ -41,51 +44,41 @@ void version() {
 		"Project page: <https://github.com/dd86k/great>\n"
 		"\nSupport\n"
 		"MZ\n"
-		"  header, relocations"
+		"  header, relocations\n"
 		"PE32\n"
-		"  headers, sections\n"
+		"  header, sections\n"
 		"PE32+\n"
-		"  headers, sections\n"
+		"  header, sections\n"
+		"ELF32\n"
+		"  header\n"
+		"ELF64\n"
+		"  header"
 	);
-	exit(0);
 }
 
 char _args = 1;
 
-#ifdef _WIN32
-#define MAIN int wmain(int argc, wchar_t **argv)
-void sa(wchar_t *a) {
-#else
-#define MAIN int main(int argc, char **argv)
-void sa(char *a) {
-#endif
-	while (*++a != 0) {
-		switch (*a) {
-		case 'h': help(); return;
-		case 'v': version(); return;
-		//case 's': s_symbols = 1; break;
-		case '-': _args = 0; break;
-		}
-	}
-}
-
 // CLI Options
 
 #ifdef _WIN32
+#define MAIN int wmain(int argc, wchar_t **argv)
+#define vchar wchar_t
 #define O_HELP L"help"
 #define O_VERSION L"version"
-void sb(wchar_t *a) {
-	if (_strcmpw_l(a, O_HELP, sizeof(O_HELP)/2) == 0)
+void arglong(wchar_t *a) {
+	if (wcscmp(a, O_HELP) == 0)
 		help();
-	if (_strcmpw_l(a, O_VERSION, sizeof(O_VERSION)/2) == 0)
+	if (wcscmp(a, O_VERSION) == 0)
 		version();
-#else
+#else // POSIX
+#define MAIN int main(int argc, char **argv)
+#define vchar char
 #define O_HELP "help"
 #define O_VERSION "version"
-void sb(char *a) {
-	if (_strcmp_l(a, O_HELP, sizeof(O_HELP)) == 0)
+void arglong(char *a) {
+	if (strcmp(a, O_HELP) == 0)
 		help();
-	if (_strcmp_l(a, O_VERSION, sizeof(O_VERSION)) == 0)
+	if (strcmp(a, O_VERSION) == 0)
 		version();
 #endif
 }
@@ -98,9 +91,27 @@ MAIN {
 	while (--argc >= 1) {
 		if (_args) {
 			if (argv[argc][1] == '-') { // long arguments
-				sb(argv[argc]+2); continue;
+				arglong(argv[argc] + 2); continue;
 			} else if (argv[argc][0] == '-') { // short arguments
-				sa(argv[argc]); continue;
+				vchar* a = argv[argc];
+				while (*++a != 0) {
+					switch (*a) {
+					case 'h': help(); return 0;
+					case 'v': version(); return 0;
+					case 'S': ++setting_sections; break;
+					case 'Y': ++setting_symbols; break;
+					case 'D': ++setting_directories; break;
+					case 'H': ++setting_header; break;
+					case 'A':
+						memset(&setting_header, 1, 5);
+						break;
+					case '-': --_args; break;
+					default:
+						printf("Unknown parameter: %c", *a);
+						return 1;
+					}
+				}
+				continue;
 			}
 		}
 #ifdef _WIN32

@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include "../utils.h"
+#include "../settings.h"
 #include "elf.h"
 
 /// Scan an ELF image
 void scan_elf() {
-	unsigned char e_ident[EI_NIDENT]; // Exclude magic
+	unsigned char e_ident[EI_NIDENT]; // Excludes magic
 	_ddread(e_ident, sizeof(EI_NIDENT));
 	unsigned char class = e_ident[EI_CLASS];
 
@@ -65,7 +66,7 @@ void scan_elf() {
 	default:   printf("Unknown DECL"); break;
 	}
 	switch (h.e_type) {
-	case ET_NONE:   printf(" (No filetype)"); break;
+	case ET_NONE:   printf(" (no filetype)"); break;
 	case ET_REL:    printf(" Relocatable"); break;
 	case ET_EXEC:   printf(" Executable"); break;
 	case ET_DYN:    printf(" Shared object"); break;
@@ -74,7 +75,9 @@ void scan_elf() {
 	case ET_HIPROC: printf(" Professor-specific (HI)"); break;
 	default:        printf(" ?"); break;
 	}
+
 	printf(" for ");
+
 	switch (h.e_machine) {
 	case EM_NONE:    printf("no"); break;
 	case EM_M32:     printf("AT&T WE 32100 (M32)"); break;
@@ -94,7 +97,7 @@ void scan_elf() {
 	}
 	puts(" machines");
 
-	printf(
+	if (setting_header) printf(
 		"type     : %Xh\n"
 		"machine  : %Xh\n"
 		"version  : %Xh\n"
@@ -115,63 +118,65 @@ void scan_elf() {
 		h.e_shstrndx
 	);
 
-	if (h.e_shnum) {
-		_ddseek(h.e_shoff, SEEK_SET);
+	if (setting_sections) { // setting_sections
+		if (h.e_shnum) {
+			_ddseek(h.e_shoff, SEEK_SET);
 
-		int i = 0;
-		struct Elf64_Shdr s;
-		do {
-			switch (class) {
-			case 1:
-				struct Elf32_Shdr s32;
-				_ddread(&s32, sizeof(struct Elf32_Shdr));
-				s.sh_name = s32.sh_name;
-				s.sh_type = s32.sh_type;
-				s.sh_flags = s32.sh_flags;
-				s.sh_addr = s32.sh_addr;
-				s.sh_offset = s32.sh_offset;
-				s.sh_size = s32.sh_size;
-				s.sh_link = s32.sh_link;
-				s.sh_info = s32.sh_info;
-				s.sh_addralign = s32.sh_addralign;
-				s.sh_entsize = s32.sh_entsize;
-				break;
-			case 2:
-				_ddread(&s, sizeof(struct Elf64_Shdr));
-				break;
-			}
-			printf(
-				"  \n%d. \n"
-				"  <",
-				++i
-			);
-			switch (s.sh_type) {
-			case SHT_PROGBITS: printf("SHT_PROGBITS"); break;
-			case SHT_SYMTAB: printf("SHT_SYMTAB"); break;
-			case SHT_STRTAB: printf("SHT_STRTAB"); break;
-			case SHT_RELA: printf("SHT_RELA"); break;
-			case SHT_HASH: printf("SHT_HASH"); break;
-			case SHT_DYNAMIC: printf("SHT_DYNAMIC"); break;
-			case SHT_NOTE: printf("SHT_NOTE"); break;
-			case SHT_NOBITS: printf("SHT_NOBITS"); break;
-			case SHT_REL: printf("SHT_REL"); break;
-			case SHT_SHLIB: printf("SHT_SHLIB"); break;
-			case SHT_DYNSYM: printf("SHT_DYNSYM"); break;
-			case SHT_LOPROC: printf("SHT_LOPROC"); break;
-			case SHT_HIPROC: printf("SHT_HIPROC"); break;
-			case SHT_LOUSER: printf("SHT_LOUSER"); break;
-			case SHT_HIUSER: printf("SHT_HIUSER"); break;
-			default: printf("SHT_NULL"); break;
-			}
-			if (s.sh_flags & SHF_WRITE)
-				printf(", SHF_WRITE");
-			if (s.sh_flags & SHF_ALLOC)
-				printf(", SHF_ALLOC");
-			if (s.sh_flags & SHF_EXECINSTR)
-				printf(", SHF_EXECINSTR");
-			if (s.sh_flags & SHF_MASKPROC)
-				printf(", SHF_MASKPROC");
-			printf(">");
-		} while (--h.e_shnum);
-	}
+			int i = 0;
+			struct Elf64_Shdr s;
+			do {
+				switch (class) {
+				case 1:
+					struct Elf32_Shdr s32;
+					_ddread(&s32, sizeof(struct Elf32_Shdr));
+					s.sh_name = s32.sh_name;
+					s.sh_type = s32.sh_type;
+					s.sh_flags = s32.sh_flags;
+					s.sh_addr = s32.sh_addr;
+					s.sh_offset = s32.sh_offset;
+					s.sh_size = s32.sh_size;
+					s.sh_link = s32.sh_link;
+					s.sh_info = s32.sh_info;
+					s.sh_addralign = s32.sh_addralign;
+					s.sh_entsize = s32.sh_entsize;
+					break;
+				case 2:
+					_ddread(&s, sizeof(struct Elf64_Shdr));
+					break;
+				}
+				printf(
+					"  \n%d. \n"
+					"  <",
+					++i
+				);
+				switch (s.sh_type) {
+				case SHT_PROGBITS: printf("SHT_PROGBITS"); break;
+				case SHT_SYMTAB: printf("SHT_SYMTAB"); break;
+				case SHT_STRTAB: printf("SHT_STRTAB"); break;
+				case SHT_RELA: printf("SHT_RELA"); break;
+				case SHT_HASH: printf("SHT_HASH"); break;
+				case SHT_DYNAMIC: printf("SHT_DYNAMIC"); break;
+				case SHT_NOTE: printf("SHT_NOTE"); break;
+				case SHT_NOBITS: printf("SHT_NOBITS"); break;
+				case SHT_REL: printf("SHT_REL"); break;
+				case SHT_SHLIB: printf("SHT_SHLIB"); break;
+				case SHT_DYNSYM: printf("SHT_DYNSYM"); break;
+				case SHT_LOPROC: printf("SHT_LOPROC"); break;
+				case SHT_HIPROC: printf("SHT_HIPROC"); break;
+				case SHT_LOUSER: printf("SHT_LOUSER"); break;
+				case SHT_HIUSER: printf("SHT_HIUSER"); break;
+				default: printf("SHT_NULL"); break;
+				}
+				if (s.sh_flags & SHF_WRITE)
+					printf(", SHF_WRITE");
+				if (s.sh_flags & SHF_ALLOC)
+					printf(", SHF_ALLOC");
+				if (s.sh_flags & SHF_EXECINSTR)
+					printf(", SHF_EXECINSTR");
+				if (s.sh_flags & SHF_MASKPROC)
+					printf(", SHF_MASKPROC");
+				printf(">");
+			} while (--h.e_shnum);
+		}
+	} // sections
 }

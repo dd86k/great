@@ -128,6 +128,15 @@ struct PE32_SECTION {
 	uint32_t Characteristics;
 };
 
+struct PE32_SYMBOL {
+	char Name[8];
+	uint32_t Value;
+	uint16_t SectionNumber;
+	uint16_t Type;
+	uint8_t StorageClass;
+	uint8_t NumberOfAuxSymbols;
+};
+
 enum { // PE_MACHINE
 	UNKNOWN = 0,
 	AM33 = 0x1d3,
@@ -220,22 +229,25 @@ enum { // Section flags
 	SEC_MEM_WRITE = 0x80000000
 };
 
-#define ROM   0x0107
-#define HDR32 0x010B
-#define HDR64 0x020B
+enum { // Image type
+	ROM = 0x0107,
+	HDR32 = 0x010B,
+	HDR64 = 0x020B
+};
 
-// PE_SUBSYSTEM
-#define NATIVE 1
-#define WINDOWS_GUI 2
-#define WINDOWS_CUI 3
-#define OS2_CUI 5
-#define POSIX_CUI 7
-#define WINDOWS_CE_GUI 9
-#define EFI_APPLICATION 10
-#define EFI_BOOT_SERVICE_DRIVER 11
-#define EFI_RUNTIME_DRIVER 12
-#define EFI_ROM 13
-#define XBOX 14
-#define WINDOWS_BOOT_APPLICATION 16
+enum { // PE_SUBSYSTEM
+	NATIVE = 1,
+	WINDOWS_GUI = 2,
+	WINDOWS_CUI = 3,
+	OS2_CUI = 5,
+	POSIX_CUI = 7,
+	WINDOWS_CE_GUI = 9,
+	EFI_APPLICATION = 10,
+	EFI_BOOT_SERVICE_DRIVER = 11,
+	EFI_RUNTIME_DRIVER = 12,
+	EFI_ROM = 13,
+	XBOX = 14,
+	WINDOWS_BOOT_APPLICATION = 16
+};
 
 void scan_pe(void);

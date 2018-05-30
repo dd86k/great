@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../utils.h"
+#include "../settings.h"
 #include "mz.h"
 #include "pe.h"
 //#include "ne.h"
@@ -36,8 +37,12 @@ _MZ:
     _ddread(&h, sizeof(struct mz_hdr));
 
     printf(
-        "MZ executable for MS-DOS (Overlay: %d)\n"
-        "\ncblp    : %Xh\n"
+        "MZ executable for MS-DOS (overlay: %d)\n",
+        h.e_ovno
+    );
+
+    if (setting_header) printf(
+        "cblp    : %Xh\n"
         "cp      : %Xh\n"
         "crlc    : %Xh\n"
         "cparh   : %Xh\n"
@@ -51,24 +56,25 @@ _MZ:
         "lfarlc  : %Xh\n"
         "ovno    : %Xh\n"
         "lfanew  : %Xh\n",
-        h.e_ovno,
         h.e_cblp, h.e_cp, h.e_crlc, h.e_cparh,
         h.e_minalloc, h.e_maxalloc, h.e_ss,
         h.e_sp, h.e_csum, h.e_ip, h.e_cs,
         h.e_lfarlc, h.e_ovno, h.e_lfanew
     );
 
-    if (h.e_crlc) {
-        unsigned short i = 0;
-        struct mz_rlc r;
-        _ddseek(h.e_lfarlc, SEEK_SET);
-        puts("\nRelocations\n");
-        do {
-            _ddread(&r, sizeof(struct mz_rlc));
-            printf(
-                "%2d  Segment:%04X  Offset:%04X\n",
-                ++i, r.seg, r.off
-            );
-        } while (--h.e_crlc && i < 0xFFFF);
-    } else puts("\nNo relocations");
+    if (setting_relocations) {
+        if (h.e_crlc) {
+            unsigned short i = 0;
+            struct mz_rlc r;
+            _ddseek(h.e_lfarlc, SEEK_SET);
+            puts("\nRelocations\n");
+            do {
+                _ddread(&r, sizeof(struct mz_rlc));
+                printf(
+                    "%2d  Segment:%04X  Offset:%04X\n",
+                    ++i, r.seg, r.off
+                );
+            } while (--h.e_crlc && i < 0xFFFF);
+        } else puts("\nNo relocations");
+    }
 }
