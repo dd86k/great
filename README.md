@@ -20,9 +20,16 @@ What's _great_ so far?
 | ELF32 | ❌ | ❌ | ❌ | ❌ |
 | ELF64 | ❌ | ❌ | ❌ | ❌ |
 
-Other planned stuff:
-- `-s` switch for Symbols
-- a complete manpage
+## CLI
+
+| Switch | Descriptions |
+|---|---|
+| -H | Show detailed header info |
+| -R | Show relocations |
+| -S | Show sections |
+| -Y | Show symbols |
+| -D | (PE32) Show directories |
+| -A | Show all |
 
 # Compiling
 
