@@ -103,7 +103,11 @@ MAIN {
 					case 'D': ++setting_directories; break;
 					case 'H': ++setting_header; break;
 					case 'A':
-						memset(&setting_header, 1, 5);
+						setting_sections =
+						setting_symbols =
+						setting_directories =
+						setting_header =
+						setting_relocations = 1;
 						break;
 					case '-': --_args; break;
 					default:
